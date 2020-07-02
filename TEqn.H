@@ -1,8 +1,10 @@
 {
-    kappat = turbulence->nut()/Prt;
-    kappat.correctBoundaryConditions();
+   
+    // kappat = turbulence->nut()/Prt;
+    // kappat.correctBoundaryConditions();
 
-    volScalarField kappaEff("kappaEff", turbulence->nu()/Pr + kappat);
+    // kappat have calculated BC when nut has fixedValue type BC
+    volScalarField kappaEff("kappaEff", turbulence->nu()/Pr + turbulence->nut()/Prt);
 
     fvScalarMatrix TEqn
     (

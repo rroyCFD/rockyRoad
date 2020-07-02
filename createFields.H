@@ -83,20 +83,20 @@ DrivingForce<vector> momentumSourceTerm("momentum",U);
 DrivingForce<scalar> temperatureSourceTerm("temperature",T);
 
 
-// Create and read the kinematic turbulent thermal conductivity [m2/s].
-Info << "Creating and reading turbulent thermal conductivity field, kappat" << endl;
-volScalarField kappat
-(
-    IOobject
-    (
-        "kappat",
-        runTime.timeName(),
-        mesh,
-        IOobject::MUST_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh
-);
+// // Create and read the kinematic turbulent thermal conductivity [m2/s].
+// Info << "Creating and reading turbulent thermal conductivity field, kappat" << endl;
+// volScalarField kappat
+// (
+//     IOobject
+//     (
+//         "kappat",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::MUST_READ,
+//         IOobject::AUTO_WRITE
+//     ),
+//     mesh
+// );
 
 
 // Create and read the wall shear stress field [m^2/s^2].
