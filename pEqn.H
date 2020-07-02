@@ -10,9 +10,11 @@
     // In the equations it is always multiplied with inv(A).  This is HbyA.
     volVectorField HbyA(constrainHbyA(rAU*UEqn.H(), U, p_rgh));
 
-    // This is the Boussinesq buoyancy term multipled by the inverse of the A operator.
-    Boussinesq.updateBuoyancyTerm();
-    surfaceScalarField phig(rAUf * Boussinesq.buoyancyTerm() * mesh.magSf());
+    // ** Bouyancy term included within the UEqn thus accounted in the H term *** //
+
+    // // This is the Boussinesq buoyancy term multipled by the inverse of the A operator.
+    // Boussinesq.updateBuoyancyTerm();
+    // surfaceScalarField phig(rAUf * Boussinesq.buoyancyTerm() * mesh.magSf());
 
     // Project HbyA to cell faces and apply a correction for time stepping scheme.
     surfaceScalarField phiHbyA
@@ -38,7 +40,7 @@
         }
     }
 
-    phiHbyA += phig;
+    // phiHbyA += phig;
 
     // Update the fixedFluxPressure BCs to ensure flux consistency
     setSnGrad<fixedFluxPressureFvPatchScalarField>
@@ -49,9 +51,6 @@
           - phiFixedFlux.boundaryField()
         )/(mesh.magSf().boundaryField()*rAUf.boundaryField())
     );
-
-
-
     
     // Non-orthogonal corrector loop.
     while (pimple.correctNonOrthogonal())
@@ -75,7 +74,9 @@
 
             // Correct the momentum source with the pressure gradient flux
             // calculated from the relaxed pressure
-            U = HbyA + rAU*fvc::reconstruct((phig - p_rghEqn.flux())/rAUf);
+            // U = HbyA + rAU*fvc::reconstruct((phig - p_rghEqn.flux())/rAUf);
+            // U = HbyA + rAU*fvc::reconstruct((- p_rghEqn.flux())/rAUf);
+            U = HbyA - rAU*fvc::grad(p_rgh);
             U.correctBoundaryConditions();
             fvOptions.correct(U);
         }
