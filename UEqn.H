@@ -4,7 +4,6 @@
     Coriolis.update();
 
     // Update buoyancy term
-    // Boussinesq.updateBuoyancyTerm();
     Boussinesq.updateBuoyancyTermVol();
 
     fvVectorMatrix UEqn
@@ -26,19 +25,6 @@
 
     if (pimple.momentumPredictor())
     {
-        solve
-        (
-            UEqn
-         ==
-            - fvc::grad(p_rgh)
-            // fvc::reconstruct
-            // (
-            //     (
-            //       - fvc::snGrad(p_rgh)
-            //       // + Boussinesq.buoyancyTerm()
-            //     )*mesh.magSf()
-            // )
-        );
-
+        solve (UEqn == - fvc::grad(p_rgh) );
         fvOptions.correct(U);
     }

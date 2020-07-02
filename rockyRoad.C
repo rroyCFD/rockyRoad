@@ -105,8 +105,8 @@ int main(int argc, char *argv[])
             Info << "   Predictor" << endl;
 
             #include "UEqn.H"
-            #include "turbulenceCorrect.H"
-            #include "TEqn.H"
+            // #include "turbulenceCorrect.H"
+            // #include "TEqn.H"
 
             // Corrector steps.
             int corrIter = 0;
@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
             {
                 Info << "   Corrector Step " << corrIter << endl;
 
-                #include "pEqn.H"
+                #include "ppEqn.H"
                 #include "turbulenceCorrect.H"
                 #include "TEqn.H"
 
