@@ -6,8 +6,29 @@
     volScalarField rAU("rAU", 1.0/UEqn.A());
     surfaceScalarField rAUf("rAUf", fvc::interpolate(rAU));
 
-    // update flux (with correction)
-    phi =  (fvc::flux(U) + rAUf*fvc::ddtCorr(U, phi) );
+    // update mass-flux
+    phi = fvc::flux(U); 
+
+    // RhieChow flux correction for pressure gradient
+    if(RhieChow)
+    {
+        tmp<surfaceVectorField> gradpDiff_f
+        (
+            (  (fvc::interpolate(fvc::grad(p_rgh)) & ed)
+              - faceGradient.snGrad(p_rgh)
+            ) * ed
+        );
+
+        phi += rAUf* (gradpDiff_f() & mesh.Sf());
+
+        gradpDiff_f.clear();
+    }
+
+    // RhieChow flux correction for time-steps
+    if(ddtCorr)
+    {
+        phi += rAUf*fvc::ddtCorr(U, phi);
+    }
 
     // This part balances global mass flux.  It does it in a temporary field, and then
     // applies the correction indirectly by setting the pressure gradient to be used in

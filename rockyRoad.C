@@ -47,6 +47,7 @@ Description
 #include "fvOptions.H"
 #include "spaeceControl.H"
 #include "ABL.H"
+#include "orthogonalSnGrad.H" // for RhieChow correction
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -65,11 +66,9 @@ int main(int argc, char *argv[])
     #include "computeDivergence.H"
     #include "createDivSchemeBlendingField.H"
 
+    // -- Validate the turbulence fields after construction.
+    //    Update derived fields as required 
     turbulence->validate();
-
-    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-    Info << endl << "Starting time loop" << endl;
 
     // Update BCs before starting in case anything needs updating, 
     // for example after using mapFields to interpolate initial field.
@@ -78,6 +77,8 @@ int main(int argc, char *argv[])
     #include "turbulenceCorrect.H"
     T.correctBoundaryConditions();
 
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+    Info << nl << "Starting time loop" << endl;
     // Time stepping loop.
     while (runTime.loop())
     {

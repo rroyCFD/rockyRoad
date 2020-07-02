@@ -187,3 +187,6 @@ mesh.setFluxRequired(pp.name());
 
 // Allows the user to set fvOptions, such as additional source terms.
 #include "createFvOptions.H"
+
+// add RhieChow correction for pressure gradient and time-step
+#include "createRhieChow.H"
