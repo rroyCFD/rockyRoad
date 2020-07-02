@@ -61,7 +61,10 @@
             fvm::laplacian(rAUf, pp) == fvc::div(phi)
         );
 
-        ppEqn.setReference(pRefCell, getRefCellValue(pp, pRefCell));
+        // For periodic cases at adjustPressureLevel header
+        // p[pRefCell] = p_rgh[pRefCell] = pRefValue is ensured
+        // thus, no correction required at the pRefCell
+        ppEqn.setReference(pRefCell, 0.0);
 
         ppEqn.solve(mesh.solver(pp.select(pimple.finalInnerIter())));
 
@@ -80,7 +83,7 @@
             fvOptions.correct(U);
 
             p_rgh += pp;
-            p_rgh.correctBoundaryConditions();
+            p_rgh.correctBoundaryConditions();    
         }
     }
 

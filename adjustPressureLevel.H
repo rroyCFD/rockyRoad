@@ -2,14 +2,29 @@
 Boussinesq.updateBackgroundPressure();
 p = p_rgh + Boussinesq.backgroundPressure();
 
-if (p_rgh.needReference())
+if (pRefOn)
 {
-    p += dimensionedScalar
-    (
-        "p",
-        p.dimensions(),
-        pRefValue - getRefCellValue(p, pRefCell)
-    );
+    // p += dimensionedScalar
+    // (
+    //     "p",
+    //     p.dimensions(),
+    //     pRefValue - getRefCellValue(p, pRefCell)
+    // );
 
-    p_rgh = p - Boussinesq.backgroundPressure();
+    // p_rgh = p - Boussinesq.backgroundPressure();
+
+	// change in Bouyant background pressure may alter pRefValue at pRefCell
+	// since the linear system enforces pRefCell value within the solver tolerence
+	// pp[pRefCell] not-equal-to 0.0
+    Info << "p_rgh[pRefCell] (before adjustment): " << getRefCellValue(p_rgh, pRefCell) << endl;
+    
+    dimensionedScalar pAdjust(
+    	"pAdjust",
+        p.dimensions(),
+        pRefValue - getRefCellValue(p, pRefCell));
+
+    p     += pAdjust;
+    p_rgh += pAdjust;
+
+    Info << "p_rgh[pRefCell] (after  adjustment): " << getRefCellValue(p_rgh, pRefCell) << endl;
 }

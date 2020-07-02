@@ -151,15 +151,9 @@ volScalarField p
 Info << "Setting reference pressure level" << endl;
 label pRefCell = 0;
 scalar pRefValue = 0.0;
-setRefCell
-(
-    p,
-    p_rgh,
-    pimple.dict(),
-    pRefCell,
-    pRefValue
-);
 
+// pRefOn is true if need reference (i.e. value is not fixed at any boundary)
+bool pRefOn = setRefCell (p, p_rgh, pimple.dict(), pRefCell, pRefValue );
 
 // Create buoyancy model, which requires a reference height, which is the height of
 // the pressure reference cell.
