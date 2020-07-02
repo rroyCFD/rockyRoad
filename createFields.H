@@ -1,3 +1,6 @@
+// create solution control object
+spaeceControl spaece(mesh, "SPAeCE");
+
 // Create and read the potential temperature field [K].
 Info << "Creating and reading potential temperature field, T" << endl;
 volScalarField T
@@ -153,7 +156,7 @@ label pRefCell = 0;
 scalar pRefValue = 0.0;
 
 // pRefOn is true if need reference (i.e. value is not fixed at any boundary)
-bool pRefOn = setRefCell (p, p_rgh, pimple.dict(), pRefCell, pRefValue );
+bool pRefOn = setRefCell (p, p_rgh, spaece.dict(), pRefCell, pRefValue );
 
 // Create buoyancy model, which requires a reference height, which is the height of
 // the pressure reference cell.

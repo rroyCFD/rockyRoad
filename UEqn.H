@@ -23,7 +23,7 @@
 
     fvOptions.constrain(UEqn);
 
-    if (pimple.momentumPredictor())
+    if (spaece.momentumPredictor())
     {
         solve (UEqn == - fvc::grad(p_rgh) );
         fvOptions.correct(U);

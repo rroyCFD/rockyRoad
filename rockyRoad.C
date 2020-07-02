@@ -45,7 +45,7 @@ Description
 #include "fixedFluxPressureFvPatchScalarField.H"
 #include "interpolateXY.H"
 #include "fvOptions.H"
-#include "pimpleControl.H"
+#include "spaeceControl.H"
 #include "ABL.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
     #include "setRootCaseLists.H"
     #include "createTime.H"
     #include "createMesh.H"
-    #include "createControl.H"
+    // #include "createControl.H"
     #include "createFields.H"
     #include "createTimeControls.H"
     #include "CourantNo.H"
@@ -79,52 +79,40 @@ int main(int argc, char *argv[])
     T.correctBoundaryConditions();
 
     // Time stepping loop.
-    while (runTime.run())
+    while (runTime.loop())
     {
         #include "readTimeControls.H"
         #include "CourantNo.H"
         #include "setDeltaT.H"
         #include "updateDivSchemeBlendingField.H"
 
-        runTime++;
+        // runTime++;
 
         Info << "Time = " << runTime.timeName() << tab;
         Info << "Time Step = " << runTime.timeIndex() << endl;
 
-        // Outer-iteration loop.
-        int outerIter = 0;
-        while (pimple.loop())
         {
-            Info << "   Outer Iteration " << outerIter << endl;
-
             // Update the source terms.
             momentumSourceTerm.update();
             temperatureSourceTerm.update();
 
-            // Predictor step.
-            Info << "   Predictor" << endl;
-
-            #include "UEqn.H"
-            // #include "turbulenceCorrect.H"
-            // #include "TEqn.H"
-
-            // Corrector steps.
-            int corrIter = 0;
-            while (pimple.correct())
+            while (spaece.correct())
             {
-                Info << "   Corrector Step " << corrIter << endl;
+                // momentum prediction
+                #include "UEqn.H"
 
+                // pressure correction
                 #include "ppEqn.H"
-                #include "turbulenceCorrect.H"
-                #include "TEqn.H"
 
-                corrIter++;
+                // solve for turbulent transport variables and update fields
+                #include "turbulenceCorrect.H"
+
+                // solve for energy (potential temperature)
+                #include "TEqn.H"
             }
 
             // Compute the continuity errors.
             #include "computeDivergence.H"
-
-            outerIter++;
         }
 
         // Write the solution if at write time.

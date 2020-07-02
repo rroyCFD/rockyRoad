@@ -54,7 +54,7 @@
     }
 
     // Non-orthogonal corrector loop.
-    while (pimple.correctNonOrthogonal())
+    while (spaece.correctNonOrthogonal())
     {
         fvScalarMatrix ppEqn
         (
@@ -66,9 +66,9 @@
         // thus, no correction required at the pRefCell
         ppEqn.setReference(pRefCell, 0.0);
 
-        ppEqn.solve(mesh.solver(pp.select(pimple.finalInnerIter())));
+        ppEqn.solve(mesh.solver(pp.select(spaece.finalInnerIter())));
 
-        if (pimple.finalNonOrthogonalIter())
+        if (spaece.finalNonOrthogonalIter())
         {
             // Calculate the conservative fluxes
             phi -= ppEqn.flux();
