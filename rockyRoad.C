@@ -93,6 +93,9 @@ int main(int argc, char *argv[])
         Info << "Time Step = " << runTime.timeIndex() << endl;
 
         {
+            // Extrapolate fields for explicit the terms
+            #include "extrapolateFields.H"
+
             // Update the source terms.
             momentumSourceTerm.update();
             temperatureSourceTerm.update();
