@@ -32,7 +32,10 @@
 
     // Read blending information.
     //
-    List<List<scalar> > profileTable(mesh.schemesDict().subDict("schemeBlending").lookup("faceSizeBlendingTable"));
+    const dictionary schemeBlendDict = mesh.schemesDict().subDict("schemeBlending");
+    // Info << schemeBlendDict << endl;
+
+    List<List<scalar> > profileTable(schemeBlendDict.lookup("faceSizeBlendingTable"));
     scalarField faceAreaList(profileTable.size(),0.0);
     scalarField UBlendingList(profileTable.size(),0.0);
     scalarField TBlendingList(profileTable.size(),0.0);
@@ -43,17 +46,16 @@
         TBlendingList[i] = profileTable[i][2];
     }
 
-    scalar zBlending1 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("heightBlending_z1"));
-    scalar zBlending2 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("heightBlending_z2"));
+    scalar zBlending1 = readScalar(schemeBlendDict.lookup("heightBlending_z1"));
+    scalar zBlending2 = readScalar(schemeBlendDict.lookup("heightBlending_z2"));
 
-    scalar blendingFactorUz1 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("heightBlendingFactorU_z1"));
-    scalar blendingFactorTz1 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("heightBlendingFactorT_z1"));
-    scalar blendingFactorUz2 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("heightBlendingFactorU_z2"));
-    scalar blendingFactorTz2 = readScalar(mesh.schemesDict().subDict("schemeBlending").lookup("heightBlendingFactorT_z2"));
+    scalar blendingFactorUz1 = readScalar(schemeBlendDict.lookup("heightBlendingFactorU_z1"));
+    scalar blendingFactorUz2 = readScalar(schemeBlendDict.lookup("heightBlendingFactorU_z2"));
 
-    bool useWallDistZ(mesh.schemesDict().subDict("schemeBlending").lookupOrDefault<bool>("useWallDistZ",false));
+    scalar blendingFactorTz1 = readScalar(schemeBlendDict.lookup("heightBlendingFactorT_z1"));
+    scalar blendingFactorTz2 = readScalar(schemeBlendDict.lookup("heightBlendingFactorT_z2"));
 
-
+    bool useWallDistZ(schemeBlendDict.lookupOrDefault<bool>("useWallDistZ",false));
 
 
     // Create the old value of these quantities for checking for updated files.
@@ -63,12 +65,12 @@
     scalar zBlending2Old = zBlending2;
 
     scalar blendingFactorUz1Old = blendingFactorUz1;
-    scalar blendingFactorTz1Old = blendingFactorTz1;
     scalar blendingFactorUz2Old = blendingFactorUz2;
+
+    scalar blendingFactorTz1Old = blendingFactorTz1;
     scalar blendingFactorTz2Old = blendingFactorTz2;
 
     bool useWallDistZOld = useWallDistZ;
-
 
 
     // Get distance from the wall
@@ -82,14 +84,11 @@
         dFace = fvc::interpolate(d.y());
     }
 
-
-
     // Set the blending factor fields.
     // internal field
     forAll(UBlendingFactor, faceI)
     {
         scalar area = mesh.magSf()[faceI];
-
 
         UBlendingFactor[faceI] = max(min(interpolateXY(area,faceAreaList,UBlendingList),1.0),0.0);
         TBlendingFactor[faceI] = max(min(interpolateXY(area,faceAreaList,TBlendingList),1.0),0.0);
@@ -107,12 +106,15 @@
 
         if ((z > zBlending1) && (z < zBlending2))
         {
-            UBlendingFactor[faceI] = blendingFactorUz2 +
-                                     0.5 * (blendingFactorUz1 - blendingFactorUz2) *
-                                    (1.0 + Foam::cos(((z - zBlending1)/(zBlending2 - zBlending1))*Foam::constant::mathematical::pi));
-            TBlendingFactor[faceI] = blendingFactorTz2 +
-                                     0.5 * (blendingFactorTz1 - blendingFactorTz2) *
-                                    (1.0 + Foam::cos(((z - zBlending1)/(zBlending2 - zBlending1))*Foam::constant::mathematical::pi));
+            // UBlendingFactor[faceI] = blendingFactorUz2 +
+            //                          0.5 * (blendingFactorUz1 - blendingFactorUz2) *
+            //                         (1.0 + Foam::cos(((z - zBlending1)/(zBlending2 - zBlending1))*Foam::constant::mathematical::pi));
+            // TBlendingFactor[faceI] = blendingFactorTz2 +
+            //                          0.5 * (blendingFactorTz1 - blendingFactorTz2) *
+            //                         (1.0 + Foam::cos(((z - zBlending1)/(zBlending2 - zBlending1))*Foam::constant::mathematical::pi));
+            
+            UBlendingFactor[faceI] = getBlendingCoeff(z, zBlending1, zBlending2,  blendingFactorUz1, blendingFactorUz2);
+            TBlendingFactor[faceI] = getBlendingCoeff(z, zBlending1, zBlending2,  blendingFactorTz1, blendingFactorTz2);
         }
         else if ( z > zBlending2 )
         {
@@ -125,12 +127,15 @@
     // boundary field
     forAll(UBlendingFactor.boundaryFieldRef(), patchI)
     {
-        forAll(UBlendingFactor.boundaryFieldRef()[patchI], faceI)
+        fvsPatchField<scalar>& UBFpatch = UBlendingFactor.boundaryFieldRef()[patchI];
+        fvsPatchField<scalar>& TBFpatch = TBlendingFactor.boundaryFieldRef()[patchI];
+
+        forAll(UBFpatch, faceI)
         {
             scalar area = mesh.boundary()[patchI].magSf()[faceI];
 
-            UBlendingFactor.boundaryFieldRef()[patchI][faceI] = max(min(interpolateXY(area,faceAreaList,UBlendingList),1.0),0.0);
-            TBlendingFactor.boundaryFieldRef()[patchI][faceI] = max(min(interpolateXY(area,faceAreaList,TBlendingList),1.0),0.0);
+            UBFpatch[faceI] = max(min(interpolateXY(area,faceAreaList,UBlendingList),1.0),0.0);
+            TBFpatch[faceI] = max(min(interpolateXY(area,faceAreaList,TBlendingList),1.0),0.0);
 
 
             scalar z = 0.0;
@@ -146,19 +151,13 @@
 
             if ((z > zBlending1) && (z < zBlending2))
             {
-                UBlendingFactor.boundaryFieldRef()[patchI][faceI] = blendingFactorUz2 +
-                                         0.5 * (blendingFactorUz1 - blendingFactorUz2) *
-                                        (1.0 + Foam::cos(((z - zBlending1)/(zBlending2 - zBlending1))*Foam::constant::mathematical::pi));
-                TBlendingFactor.boundaryFieldRef()[patchI][faceI] = blendingFactorTz2 +
-                                         0.5 * (blendingFactorTz1 - blendingFactorTz2) *
-                                        (1.0 + Foam::cos(((z - zBlending1)/(zBlending2 - zBlending1))*Foam::constant::mathematical::pi));
+                UBFpatch[faceI] = getBlendingCoeff(z, zBlending1, zBlending2,  blendingFactorUz1, blendingFactorUz2);
+                TBFpatch[faceI] = getBlendingCoeff(z, zBlending1, zBlending2,  blendingFactorTz1, blendingFactorTz2);
             }
             else if ( z > zBlending2 )
             {
-                UBlendingFactor.boundaryFieldRef()[patchI][faceI] = blendingFactorUz2;
-                TBlendingFactor.boundaryFieldRef()[patchI][faceI] = blendingFactorTz2;
+                UBFpatch[faceI] = blendingFactorUz2;
+                TBFpatch[faceI] = blendingFactorTz2;
             }
-
-
         }
     }
