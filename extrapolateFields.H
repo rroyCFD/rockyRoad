@@ -1,14 +1,26 @@
-// extrapolate fields to next-time step to obtain a better initial condition
-p_rgh = (1.5 * p_rgh.oldTime() - 0.5* p_rgh.oldTime().oldTime());
-// p_rgh.correctBoundaryConditions(); // will not work for fixedFluxPressure BC
+{
+	scalar extrapCoeff(0.5);
 
-// Update U and phi with their respective extrapolated value
-phi = (1.5 * phi.oldTime() - 0.5* phi.oldTime().oldTime());
+	if(adjustTimeStep)
+	{
+		extrapCoeff = 0.5 * (runTime.deltaTValue()/runTime.deltaT0Value());
+		// bound between 0 and 1; (assuming dt(n+1) is no larger than twice of dt(n))
+		extrapCoeff = max(min(extrapCoeff, 1.0), 0.0);
+	}
+	Info << "Extrapolation coeffcient: " << extrapCoeff << endl;
 
-U = (1.5 * U.oldTime() - 0.5* U.oldTime().oldTime());
-// U.correctBoundaryConditions(); updated at UEqn matrix formation
+	// -- only velocity and pressure values are extrapolated, since they are 
+	//    non-linearly coupled and benefits most from a better estimate.
 
-// MRF.correctBoundaryVelocity(U);
+	// extrapolate fields to next-time step to obtain a better initial condition
+	p_rgh = ((1 + extrapCoeff) * p_rgh.oldTime() - extrapCoeff* p_rgh.oldTime().oldTime());
+	// p_rgh.correctBoundaryConditions(); // will not work for fixedFluxPressure BC
 
-// -- only velocity and pressure values are extrapolated, since they are 
-//    non-linearly coupled and benefits most from a better estimate.
+	// Update U and phi with their respective extrapolated value
+	phi = ((1 + extrapCoeff) * phi.oldTime() - extrapCoeff* phi.oldTime().oldTime());
+
+	U = ((1 + extrapCoeff) * U.oldTime() - extrapCoeff* U.oldTime().oldTime());
+	// U.correctBoundaryConditions(); updated at UEqn matrix formation
+
+	// MRF.correctBoundaryVelocity(U);
+}
