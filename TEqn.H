@@ -26,4 +26,6 @@
     fvOptions.correct(T);
 
     Boussinesq.updateDensityField();
+
+    Boussinesq.updateBackgroundPressure();
 }

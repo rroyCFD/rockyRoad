@@ -1,5 +1,8 @@
 // Compute the full pressure and adjust the pressure level.
-Boussinesq.updateBackgroundPressure();
+
+// Note background pressure is updated after TEqn solve (may be lagged in a non-iterative algorithm)
+// Boussinesq.updateBackgroundPressure();
+
 p = p_rgh + Boussinesq.backgroundPressure();
 
 if (pRefOn)
@@ -13,8 +16,8 @@ if (pRefOn)
 
     // p_rgh = p - Boussinesq.backgroundPressure();
 
-	// change in Bouyant background pressure may alter pRefValue at pRefCell
-	// since the linear system enforces pRefCell value within the solver tolerence
+	// change in Buoyant background pressure may alter pRefValue at pRefCell
+	// since the linear system enforces pRefCell value within the solver tolerance
 	// pp[pRefCell] not-equal-to 0.0
     Info << "p_rgh[pRefCell] (before adjustment): " << getRefCellValue(p_rgh, pRefCell) << endl;
     
