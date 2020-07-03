@@ -1,77 +1,17 @@
-    // Create the blending factor fields.
-    Info << "Creating divergence scheme blending factor field, UBlendingFactor" << endl;
-    surfaceScalarField UBlendingFactor
-    (
-        IOobject
-        (
-            "UBlendingFactor",
-            runTime.timeName(),
-            mesh,
-            IOobject::READ_IF_PRESENT,
-            IOobject::AUTO_WRITE
-        ),
-        mesh,
-        1.0
-    );
+{
+    // Update the old value of these quantities for checking for updated files.
+    profileTableOld = profileTable;
 
-    Info << "Creating divergence scheme blending factor field, TBlendingFactor" << endl;
-    surfaceScalarField TBlendingFactor
-    (
-        IOobject
-        (
-            "TBlendingFactor",
-            runTime.timeName(),
-            mesh,
-            IOobject::READ_IF_PRESENT,
-            IOobject::AUTO_WRITE
-        ),
-        mesh,
-        1.0
-    );
+    zBlending1Old = zBlending1;
+    zBlending2Old = zBlending2;
 
+    blendingFactorUz1Old = blendingFactorUz1;
+    blendingFactorTz1Old = blendingFactorTz1;
+    blendingFactorUz2Old = blendingFactorUz2;
+    blendingFactorTz2Old = blendingFactorTz2;
 
-    // Read blending information.
-    //
-    const dictionary schemeBlendDict = mesh.schemesDict().subDict("schemeBlending");
-    // Info << schemeBlendDict << endl;
-
-    List<List<scalar> > profileTable(schemeBlendDict.lookup("faceSizeBlendingTable"));
-    scalarField faceAreaList(profileTable.size(),0.0);
-    scalarField UBlendingList(profileTable.size(),0.0);
-    scalarField TBlendingList(profileTable.size(),0.0);
-    forAll(faceAreaList,i)
-    {
-        faceAreaList[i] = profileTable[i][0];
-        UBlendingList[i] = profileTable[i][1];
-        TBlendingList[i] = profileTable[i][2];
-    }
-
-    scalar zBlending1 = readScalar(schemeBlendDict.lookup("heightBlending_z1"));
-    scalar zBlending2 = readScalar(schemeBlendDict.lookup("heightBlending_z2"));
-
-    scalar blendingFactorUz1 = readScalar(schemeBlendDict.lookup("heightBlendingFactorU_z1"));
-    scalar blendingFactorUz2 = readScalar(schemeBlendDict.lookup("heightBlendingFactorU_z2"));
-
-    scalar blendingFactorTz1 = readScalar(schemeBlendDict.lookup("heightBlendingFactorT_z1"));
-    scalar blendingFactorTz2 = readScalar(schemeBlendDict.lookup("heightBlendingFactorT_z2"));
-
-    bool useWallDistZ(schemeBlendDict.lookupOrDefault<bool>("useWallDistZ",false));
-
-
-    // Create the old value of these quantities for checking for updated files.
-    List<List<scalar> > profileTableOld = profileTable;
-
-    scalar zBlending1Old = zBlending1;
-    scalar zBlending2Old = zBlending2;
-
-    scalar blendingFactorUz1Old = blendingFactorUz1;
-    scalar blendingFactorUz2Old = blendingFactorUz2;
-
-    scalar blendingFactorTz1Old = blendingFactorTz1;
-    scalar blendingFactorTz2Old = blendingFactorTz2;
-
-    bool useWallDistZOld = useWallDistZ;
-
+    useWallDistZOld = useWallDistZ;
+    //------------------------------------------------------------------------//
 
     // Get distance from the wall
     vector up = vector::zero;
@@ -92,8 +32,8 @@
 
         UBlendingFactor[faceI] = max(min(interpolateXY(area,faceAreaList,UBlendingList),1.0),0.0);
         TBlendingFactor[faceI] = max(min(interpolateXY(area,faceAreaList,TBlendingList),1.0),0.0);
- 
-   
+    
+    
         scalar z = 0.0;
         if (useWallDistZ)
         {
@@ -161,3 +101,4 @@
             }
         }
     }
+}
