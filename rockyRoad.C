@@ -43,6 +43,7 @@ Description
 #include "turbulentTransportModel.H"
 #include "wallDist.H"
 #include "fixedFluxPressureFvPatchScalarField.H"
+#include "timeVaryingMappedInletOutletFvPatchField.H"
 #include "interpolateXY.H"
 #include "fvOptions.H"
 #include "spaeceControl.H"
@@ -94,12 +95,13 @@ int main(int argc, char *argv[])
         Info << "Time Step = " << runTime.timeIndex() << endl;
 
         {
-            // Extrapolate fields for explicit the terms
+            // Extrapolate fields for explicit terms
             #include "extrapolateFields.H"
 
             // Update the source terms.
-            momentumSourceTerm.update();
-            temperatureSourceTerm.update();
+            momentumSourceTerm.update(true);
+            temperatureSourceTerm.update(true);
+
 
             while (spaece.correct())
             {
@@ -119,6 +121,9 @@ int main(int argc, char *argv[])
             // Compute the continuity errors.
             #include "computeDivergence.H"
         }
+
+        // Update timeVaryingMappedInletOutlet parameters
+        #include "updateFixesValue.H"
 
         // Write the solution if at write time.
         runTime.write();
