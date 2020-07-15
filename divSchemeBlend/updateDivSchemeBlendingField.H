@@ -2,7 +2,7 @@
 {
     schemeBlendDict = mesh.schemesDict().subDict("schemeBlending");
     {
-        List<List<scalar> > temp(schemeBlendDict.lookup("faceSizeBlendingTable")); 
+        List<List<scalar> > temp(schemeBlendDict.lookup("faceSizeBlendingTable"));
         profileTable = temp;
     }
 
@@ -10,7 +10,7 @@
     // faceAreaList.resize(profileTable.size(), 0.0);
     faceAreaList.setSize(profileTable.size(), 0.0);
     UBlendingList.setSize(profileTable.size(),0.0);
-    TBlendingList.setSize(profileTable.size(),0.0);    
+    TBlendingList.setSize(profileTable.size(),0.0);
 
     forAll(faceAreaList,i)
     {
@@ -33,8 +33,8 @@
     useWallDistZ = (schemeBlendDict.lookupOrDefault<bool>("useWallDistZ",false));
 
 
-    // Check to see if the blending factors or face sizes have changed.  If so, recalculate the U and T
-    // blending factor field.
+    // Check to see if the blending factors or face sizes have changed.
+    // If so, recalculate the U and T blending factor field.
     if ((profileTable != profileTableOld) ||
         (zBlending1 != zBlending1Old) ||
         (zBlending2 != zBlending2Old) ||
@@ -46,6 +46,6 @@
     )
     {
         Info << "Updating scheme blending factor field" << endl;
-        #include "makeDivSchemeBlendingField.H"    
+        #include "makeDivSchemeBlendingField.H"
     }
 }
