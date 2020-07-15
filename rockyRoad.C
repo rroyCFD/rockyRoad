@@ -69,10 +69,10 @@ int main(int argc, char *argv[])
     #include "createDivSchemeBlendingField.H"
 
     // -- Validate the turbulence fields after construction.
-    //    Update derived fields as required 
+    //    Update derived fields as required
     turbulence->validate();
 
-    // Update BCs before starting in case anything needs updating, 
+    // Update BCs before starting in case anything needs updating,
     // for example after using mapFields to interpolate initial field.
     U.correctBoundaryConditions();
     phi = linearInterpolate(U) & mesh.Sf();
