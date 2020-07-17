@@ -26,4 +26,4 @@ EXE_LIBS = \
     -L$(SOWFA_DIR)/lib/$(WM_OPTIONS) \
     -lSOWFAABLForcing \
     -lSOWFAmeshTools \
-    -lSOWFAboundaryConditions \
+    -lSOWFAboundaryConditions

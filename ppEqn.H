@@ -6,8 +6,21 @@
     volScalarField rAU("rAU", 1.0/UEqn.A());
     surfaceScalarField rAUf("rAUf", fvc::interpolate(rAU));
 
-    // update mass-flux
-    phi = fvc::flux(U); 
+    // The momentum equation "H" operator is the off-diagonal times the last known U.
+    // In the equations it is always multiplied with inv(A).  This is HbyA.
+    volVectorField HbyA(constrainHbyA(rAU*UEqn.H(), U, p_rgh));
+
+    // This is the Boussinesq buoyancy term multipled by the inverse of the A operator.
+    Boussinesq.updateBuoyancyTerm();
+    surfaceScalarField phig(rAUf * Boussinesq.buoyancyTerm() * mesh.magSf());
+
+    // Project HbyA to cell faces and apply a correction for time stepping scheme.
+    surfaceScalarField phiHbyA
+    (
+        "phiHbyA",
+        fvc::flux(HbyA)
+      + rAUf*fvc::ddtCorr(U, phi)
+    );
 
     // RhieChow flux correction for pressure gradient
     if(RhieChow)
@@ -19,22 +32,22 @@
             ) * ed
         );
 
-        phi += rAUf* (gradpDiff_f() & mesh.Sf());
+        phiHbyA += rAUf* (gradpDiff_f() & mesh.Sf());
 
         gradpDiff_f.clear();
     }
 
-    // RhieChow flux correction for time-steps
-    if(ddtCorr)
-    {
-        phi += rAUf*fvc::ddtCorr(U, phi);
-    }
+    // // RhieChow flux correction for time-steps
+    // if(ddtCorr)
+    // {
+    //     phiHbyA += rAUf*fvc::ddtCorr(U, phi);
+    // }
 
     // This part balances global mass flux.  It does it in a temporary field, and then
     // applies the correction indirectly by setting the pressure gradient to be used in
     // the fixedFluxPressure boundary condition on p_rgh, or directly if the zeroGradient
     // boundary condition on p_rgh is used.
-    surfaceScalarField phiFixedFlux = phi;
+    surfaceScalarField phiFixedFlux = phiHbyA;
 
     adjustPhi(phiFixedFlux, U, p_rgh);
 
@@ -43,9 +56,11 @@
     {
         if (isA<zeroGradientFvPatchScalarField>(p_rgh.boundaryField()[patchi]))
         {
-            phi.boundaryFieldRef()[patchi] = phiFixedFlux.boundaryField()[patchi];
+            phiHbyA.boundaryFieldRef()[patchi] = phiFixedFlux.boundaryField()[patchi];
         }
     }
+
+    phiHbyA += phig;
 
     // Update the fixedFluxPressure BCs to ensure flux consistency
     if(fixedFluxBC)
@@ -53,10 +68,8 @@
         setSnGrad<fixedFluxPressureFvPatchScalarField>
         (
             p_rgh.boundaryFieldRef(),
-            (
-                phi.boundaryField()
-              - phiFixedFlux.boundaryField()
-            )/(mesh.magSf().boundaryField()*rAUf.boundaryField())
+            (phiHbyA.boundaryField() - phiFixedFlux.boundaryField() )
+            /(mesh.magSf().boundaryField()*rAUf.boundaryField())
         );
         p_rgh.correctBoundaryConditions();
 
@@ -71,8 +84,13 @@
                 ppGradPatch.gradient() = p_rghGradPatch.gradient();
                 Info << "maxGrad: " << gMax(p_rghGradPatch.gradient()) << endl;
             }
-        }   
+        }
     }
+
+
+    // add pressure gradient contribution to phiHbyA to get phi
+    phi = phiHbyA - (rAUf * fvc::snGrad(p_rgh) * mesh.magSf());
+
 
     // Non-orthogonal corrector loop.
     while (spaece.correctNonOrthogonal())
@@ -104,7 +122,7 @@
             fvOptions.correct(U);
 
             p_rgh += pp;
-            p_rgh.correctBoundaryConditions();    
+            p_rgh.correctBoundaryConditions();
         }
     }
 

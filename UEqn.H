@@ -1,5 +1,5 @@
     // Solve the momentum equation
-    
+
     // Update Coriolis forcing
     Coriolis.update();
 
@@ -8,13 +8,12 @@
 
     fvVectorMatrix UEqn
     (
-        fvm::ddt(U) 
+        fvm::ddt(U)
       + fvm::div(phi, U)
       + turbulence->divDevReff(U)
       + fvc::div(Rwall)
       - momentumSourceTerm.force()
       - Coriolis.force()
-      - Boussinesq.buoyancyTermVol()
      ==
         fvOptions(U)
     );
@@ -25,6 +24,6 @@
 
     if (spaece.momentumPredictor())
     {
-        solve (UEqn == - fvc::grad(p_rgh) );
+        solve (UEqn == - fvc::grad(p_rgh) + Boussinesq.buoyancyTermVol() );
         fvOptions.correct(U);
     }
