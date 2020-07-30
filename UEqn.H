@@ -4,7 +4,7 @@
     Coriolis.update();
 
     // Update buoyancy term
-    Boussinesq.updateBuoyancyTermVol();
+    Boussinesq.updateBuoyancyTerm();
 
     fvVectorMatrix UEqn
     (
@@ -14,7 +14,6 @@
       + fvc::div(Rwall)
       - momentumSourceTerm.force()
       - Coriolis.force()
-      - Boussinesq.buoyancyTermVol()
      ==
         fvOptions(U)
     );
@@ -25,6 +24,17 @@
 
     if (spaece.momentumPredictor())
     {
-        solve (UEqn == - fvc::grad(p_rgh) );
+        solve (
+            UEqn 
+          == 
+            fvc::reconstruct
+            (
+                (
+                    - fvc::snGrad(p_rgh)
+                    + Boussinesq.buoyancyTerm()
+                ) * mesh.magSf()
+            ) 
+        );
+
         fvOptions.correct(U);
     }
