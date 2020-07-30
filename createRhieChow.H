@@ -12,5 +12,5 @@ Foam::fv::orthogonalSnGrad<scalar> faceGradient(mesh);
 
 //----------------------------------------------------------------------------//
 // check for RhieChow correction for time step
-bool ddtCorr (spaece.dict().lookupOrDefault<bool>("ddtCorr", false));
+bool ddtCorr (spaece.dict().lookupOrDefault<bool>("ddtCorr", true));
 Info << "RhieChow-ddtCorr: " << ddtCorr << endl;
