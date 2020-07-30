@@ -7,15 +7,6 @@ p = p_rgh + Boussinesq.backgroundPressure();
 
 if (pRefOn)
 {
-    // p += dimensionedScalar
-    // (
-    //     "p",
-    //     p.dimensions(),
-    //     pRefValue - getRefCellValue(p, pRefCell)
-    // );
-
-    // p_rgh = p - Boussinesq.backgroundPressure();
-
 	// change in Buoyant background pressure may alter pRefValue at pRefCell
 	// since the linear system enforces pRefCell value within the solver tolerance
 	// pp[pRefCell] not-equal-to 0.0

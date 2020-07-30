@@ -60,7 +60,6 @@ int main(int argc, char *argv[])
     #include "setRootCaseLists.H"
     #include "createTime.H"
     #include "createMesh.H"
-    // #include "createControl.H"
     #include "createFields.H"
     #include "createTimeControls.H"
     #include "CourantNo.H"
@@ -89,10 +88,8 @@ int main(int argc, char *argv[])
         #include "setDeltaT.H"
         #include "updateDivSchemeBlendingField.H"
 
-        // runTime++;
-
-        Info << "Time = " << runTime.timeName() << tab;
-        Info << "Time Step = " << runTime.timeIndex() << endl;
+        Info << "Time = " << runTime.timeName() << tab
+             << "Time Step = " << runTime.timeIndex() << endl;
 
         {
             // Extrapolate fields for explicit terms
@@ -101,7 +98,6 @@ int main(int argc, char *argv[])
             // Update the source terms.
             momentumSourceTerm.update(true);
             temperatureSourceTerm.update(true);
-
 
             while (spaece.correct())
             {
