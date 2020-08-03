@@ -16,7 +16,7 @@ if(RhieChow)
 	// gradients are estimated in the surface normal direction
     tmp<surfaceScalarField> gradpDiffFlux
     (
-          (faceGradient.snGrad(p_rgh) * mesh.magSf())
+          (fvc::snGrad(p_rgh) * mesh.magSf())
         - (fvc::interpolate(fvc::grad(p_rgh)) & mesh.Sf())
     );
 
