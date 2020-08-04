@@ -11,7 +11,10 @@
 
 	// extrapolate fields to next-time step to obtain a better initial condition
 	p_rgh = ((1 + extrapCoeff) * p_rgh.oldTime() - extrapCoeff * p_rgh.oldTime().oldTime());
-	// p_rgh.correctBoundaryConditions(); // will not work for fixedFluxPressure BC
+	if(! fixedFluxBC)
+	{
+		p_rgh.correctBoundaryConditions();
+	}
 
 	// Update U and phi with their respective extrapolated values
 	phi = ((1 + extrapCoeff) * phi.oldTime() - extrapCoeff * phi.oldTime().oldTime());
