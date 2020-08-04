@@ -7,29 +7,41 @@
     surfaceScalarField rAUf("rAUf", fvc::interpolate(rAU));
 
     // update mass-flux
-    phi = fvc::flux(U); 
+    // phi = fvc::flux(U);
 
-    #include "correctRhieChow.H"
-
-    // This part balances global mass flux.  It does it in a temporary field, and then
-    // applies the correction indirectly by setting the pressure gradient to be used in
-    // the fixedFluxPressure boundary condition on p_rgh, or directly if the zeroGradient
-    // boundary condition on p_rgh is used.
-    surfaceScalarField phiFixedFlux = phi;
-
-    adjustPhi(phiFixedFlux, U, p_rgh);
-
-    // update flux at zero-gradient BCs
-    forAll(p_rgh.boundaryField(), patchi)
     {
-        if (isA<zeroGradientFvPatchScalarField>(p_rgh.boundaryField()[patchi]))
-        {
-            phi.boundaryFieldRef()[patchi] = phiFixedFlux.boundaryField()[patchi];
-        }
+        tmp<surfaceScalarField> gradpDiffFlux
+        (
+              (fvc::snGrad(p_rgh) * mesh.magSf())
+            - (fvc::interpolate(fvc::grad(p_rgh)) & mesh.Sf())
+        );
+
+        phi = fvc::flux(U) + rAUf * (- gradpDiffFlux() + fvc::ddtCorr(U, phi));
+
+        gradpDiffFlux.clear();
     }
 
-    #include "updateFixedFluxPressureBC.H"
-    
+    // #include "correctRhieChow.H"
+
+    // // This part balances global mass flux.  It does it in a temporary field, and then
+    // // applies the correction indirectly by setting the pressure gradient to be used in
+    // // the fixedFluxPressure boundary condition on p_rgh, or directly if the zeroGradient
+    // // boundary condition on p_rgh is used.
+    // surfaceScalarField phiFixedFlux = phi;
+
+    // adjustPhi(phiFixedFlux, U, p_rgh);
+
+    // // update flux at zero-gradient BCs
+    // forAll(p_rgh.boundaryField(), patchi)
+    // {
+    //     if (isA<zeroGradientFvPatchScalarField>(p_rgh.boundaryField()[patchi]))
+    //     {
+    //         phi.boundaryFieldRef()[patchi] = phiFixedFlux.boundaryField()[patchi];
+    //     }
+    // }
+
+    // #include "updateFixedFluxPressureBC.H"
+
 
     // Non-orthogonal corrector loop.
     while (spaece.correctNonOrthogonal())
@@ -61,7 +73,7 @@
             fvOptions.correct(U);
 
             p_rgh += pp;
-            p_rgh.correctBoundaryConditions();    
+            p_rgh.correctBoundaryConditions();
         }
     }
 

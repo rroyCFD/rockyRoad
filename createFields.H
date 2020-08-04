@@ -184,7 +184,7 @@ if (pRefCell != -1)
 }
 reduce(hRef_,sumOp<vector>());
 dimensionedVector hRef("hRef",dimLength,hRef_);
-    
+
 buoyancyModel Boussinesq(T, TRef, hRef);
 
 
@@ -205,4 +205,4 @@ mesh.setFluxRequired(pp.name());
 #include "createFvOptions.H"
 
 // add RhieChow correction for pressure gradient and time-step
-#include "createRhieChow.H"
+// #include "createRhieChow.H"

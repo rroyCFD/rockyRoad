@@ -48,7 +48,7 @@ Description
 #include "fvOptions.H"
 #include "spaeceControl.H"
 #include "ABL.H"
-#include "orthogonalSnGrad.H" // for RhieChow correction
+// #include "orthogonalSnGrad.H" // for RhieChow correction
 #include "defineBlendingFunction.H" // for divergence scheme blending
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
 
         {
             // Extrapolate fields for explicit terms
-            #include "extrapolateFields.H"
+            // #include "extrapolateFields.H"
 
             // Update the source terms.
             momentumSourceTerm.update(true);
