@@ -8,11 +8,11 @@ if(RhieChow)
     //     (  (fvc::interpolate(fvc::grad(p_rgh)) & ed)
     //       - faceGradient.snGrad(p_rgh)
     //     ) * ed
-    // );    
+    // );
     // phi += rAUf* (gradpDiff_f() & mesh.Sf());
     // gradpDiff_f.clear();
 
-	// Regardless of magnitude of the face non-orthogonality, 
+	// Regardless of magnitude of the face non-orthogonality,
 	// gradients are estimated in the surface normal direction
     tmp<surfaceScalarField> gradpDiffFlux
     (
@@ -31,3 +31,15 @@ if(ddtCorr)
 {
     phi += rAUf*fvc::ddtCorr(U, phi);
 }
+
+
+surfaceScalarField buoyancyTerm_RI_Flux
+(
+    fvc::dotInterpolate(
+        mesh.Sf(),
+        fvc::reconstruct(Boussinesq.buoyancyTerm() * mesh.magSf() )
+    )
+);
+
+surfaceScalarField buoyancyTermDiff (Boussinesq.buoyancyTerm()* mesh.magSf() - buoyancyTerm_RI_Flux);
+Info << "\t*** buoyancyTermDiff max: " << gMax(buoyancyTermDiff) << tab << "min: " << gMin(buoyancyTermDiff) << endl;
