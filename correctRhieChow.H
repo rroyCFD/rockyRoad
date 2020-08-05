@@ -44,3 +44,6 @@ surfaceScalarField buoyancyTerm_RI_Flux
 // surfaceScalarField buoyancyTermDiff (Boussinesq.buoyancyTerm()* mesh.magSf() - buoyancyTerm_RI_Flux);
 surfaceScalarField buoyancyTermDiff (Boussinesq.buoyancyTerm()- buoyancyTerm_RI_Flux/ mesh.magSf() );
 Info << "\t*** buoyancyTermDiff max: " << gMax(buoyancyTermDiff) << tab << "min: " << gMin(buoyancyTermDiff) << endl;
+
+surfaceScalarField faceVelocityDiff(rAUf * buoyancyTermDiff );
+Info << "\t*** faceVelocityDiff max: " << gMax(faceVelocityDiff) << tab << "min: " << gMin(faceVelocityDiff) << endl;
