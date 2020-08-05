@@ -14,3 +14,7 @@ Info << "RhieChow-pGrad: " << RhieChow << endl;
 // check for RhieChow correction for time step
 bool ddtCorr (spaece.dict().lookupOrDefault<bool>("ddtCorr", true));
 Info << "RhieChow-ddtCorr: " << ddtCorr << endl;
+
+// check for RhieChow correction for buoyancy forces
+bool buoyancyCorr (spaece.dict().lookupOrDefault<bool>("buoyancyCorr", true));
+Info << "RhieChow-buoyancyCorr: " << buoyancyCorr << endl;

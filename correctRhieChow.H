@@ -33,6 +33,7 @@ if(ddtCorr)
 }
 
 // Buoyancy force RhieChow correction
+if(buoyancyCorr)
 {
     surfaceScalarField buoyancyTerm_RI_Flux
     (
