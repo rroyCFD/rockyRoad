@@ -184,7 +184,10 @@ if (pRefCell != -1)
 }
 reduce(hRef_,sumOp<vector>());
 dimensionedVector hRef("hRef",dimLength,hRef_);
-    
+
+// set T to uniform TRef
+T = TRef;
+
 buoyancyModel Boussinesq(T, TRef, hRef);
 
 

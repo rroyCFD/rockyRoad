@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
                 #include "turbulenceCorrect.H"
 
                 // solve for energy (potential temperature)
-                #include "TEqn.H"
+                // #include "TEqn.H"
             }
 
             // Compute the continuity errors.
