@@ -1,17 +1,23 @@
 // RhieChow flux correction for pressure gradient
 if(RhieChow)
 {
-    // // this Rhie chow correction uses orthogonal gradient for snGrad and
-    // // aligned gradient for face-interpolated-gradient
-    // tmp<surfaceVectorField> gradpDiff_f
-    // (
-    //     (  (fvc::interpolate(fvc::grad(p_rgh)) & ed)
-    //       - faceGradient.snGrad(p_rgh)
-    //     ) * ed
-    // );
-    // phi += rAUf* (gradpDiff_f() & mesh.Sf());
-    // gradpDiff_f.clear();
+    // this Rhie chow correction uses orthogonal gradient for snGrad and
+    // aligned gradient for face-interpolated-gradient
 
+    tmp<surfaceVectorField> gradpDiff_f
+    (
+        (  (fvc::interpolate(fvc::grad(p_rgh)) & ed)
+          - faceGradient.snGrad(p_rgh)
+        ) * ed
+    );
+    phi += rAUf* (gradpDiff_f() & mesh.Sf());
+
+    surfaceScalarField pressureCont = rAUf * (gradpDiff_f() & mesh.Sf())/mesh.magSf();
+    Info << "\tPressure contrinution max: " << gMax(pressureCont) << "\tmin: " << gMin(pressureCont) << endl;
+
+    gradpDiff_f.clear();
+
+/*
 	// Regardless of magnitude of the face non-orthogonality,
 	// gradients are estimated in the surface normal direction
     tmp<surfaceScalarField> gradpDiffFlux
@@ -25,8 +31,8 @@ if(RhieChow)
 
     surfaceScalarField pressureCont = - (rAUf * gradpDiffFlux())/mesh.magSf();
     Info << "\tPressure contrinution max: " << gMax(pressureCont) << "\tmin: " << gMin(pressureCont) << endl;
-
     gradpDiffFlux.clear();
+*/
 }
 
 // RhieChow flux correction for time-steps
