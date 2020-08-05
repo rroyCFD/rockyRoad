@@ -32,18 +32,22 @@ if(ddtCorr)
     phi += rAUf*fvc::ddtCorr(U, phi);
 }
 
+// Buoyancy force RhieChow correction
+{
+    surfaceScalarField buoyancyTerm_RI_Flux
+    (
+        fvc::dotInterpolate(
+            mesh.Sf(),
+            fvc::reconstruct(Boussinesq.buoyancyTerm() * mesh.magSf() )
+        )
+    );
 
-surfaceScalarField buoyancyTerm_RI_Flux
-(
-    fvc::dotInterpolate(
-        mesh.Sf(),
-        fvc::reconstruct(Boussinesq.buoyancyTerm() * mesh.magSf() )
-    )
-);
+    phi += rAUf * (Boussinesq.buoyancyTerm()* mesh.magSf() - buoyancyTerm_RI_Flux);
 
-// surfaceScalarField buoyancyTermDiff (Boussinesq.buoyancyTerm()* mesh.magSf() - buoyancyTerm_RI_Flux);
-surfaceScalarField buoyancyTermDiff (Boussinesq.buoyancyTerm()- buoyancyTerm_RI_Flux/ mesh.magSf() );
-Info << "\t*** buoyancyTermDiff max: " << gMax(buoyancyTermDiff) << tab << "min: " << gMin(buoyancyTermDiff) << endl;
+    // // surfaceScalarField buoyancyTermDiff (Boussinesq.buoyancyTerm()* mesh.magSf() - buoyancyTerm_RI_Flux);
+    // surfaceScalarField buoyancyTermDiff (Boussinesq.buoyancyTerm()- buoyancyTerm_RI_Flux/ mesh.magSf() );
+    // Info << "\t*** buoyancyTermDiff max: " << gMax(buoyancyTermDiff) << tab << "min: " << gMin(buoyancyTermDiff) << endl;
 
-surfaceScalarField faceVelocityDiff(rAUf * buoyancyTermDiff );
-Info << "\t*** faceVelocityDiff max: " << gMax(faceVelocityDiff) << tab << "min: " << gMin(faceVelocityDiff) << endl;
+    // surfaceScalarField faceVelocityDiff(rAUf * buoyancyTermDiff );
+    // Info << "\t*** faceVelocityDiff max: " << gMax(faceVelocityDiff) << tab << "min: " << gMin(faceVelocityDiff) << endl;
+}
