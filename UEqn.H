@@ -24,7 +24,7 @@
 
     if (spaece.momentumPredictor())
     {
-        solve (
+/*        solve (
             UEqn 
           == 
             fvc::reconstruct
@@ -35,6 +35,13 @@
                 ) * mesh.magSf()
             ) 
         );
-
+*/
+        solve (
+            UEqn 
+          == 
+            - fvc::grad(p_rgh)
+            + fvc::reconstruct (Boussinesq.buoyancyTerm() * mesh.magSf())
+        );
+        
         fvOptions.correct(U);
     }
