@@ -48,7 +48,6 @@ Description
 #include "fvOptions.H"
 #include "spaeceControl.H"
 #include "ABL.H"
-#include "orthogonalSnGrad.H" // for RhieChow correction
 #include "defineBlendingFunction.H" // for divergence scheme blending
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -71,12 +70,7 @@ int main(int argc, char *argv[])
     //    Update derived fields as required
     turbulence->validate();
 
-    // Update BCs before starting in case anything needs updating,
-    // for example after using mapFields to interpolate initial field.
-    U.correctBoundaryConditions();
-    phi = linearInterpolate(U) & mesh.Sf();
-    #include "turbulenceCorrect.H"
-    T.correctBoundaryConditions();
+    #include "updateBoundaryConditions.H"
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
     Info << nl << "Starting time loop" << endl;
@@ -105,7 +99,7 @@ int main(int argc, char *argv[])
                 #include "UEqn.H"
 
                 // pressure correction
-                #include "ppEqn.H"
+                #include "pEqn.H"
 
                 // solve for turbulent transport variables and update fields
                 #include "turbulenceCorrect.H"

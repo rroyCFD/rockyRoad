@@ -184,7 +184,7 @@ if (pRefCell != -1)
 }
 reduce(hRef_,sumOp<vector>());
 dimensionedVector hRef("hRef",dimLength,hRef_);
-    
+
 buoyancyModel Boussinesq(T, TRef, hRef);
 
 
@@ -193,16 +193,10 @@ buoyancyModel Boussinesq(T, TRef, hRef);
 Info << "Adjusting the background pressure level to agree with reference level" << endl;
 #include "adjustPressureLevel.H"
 
-#include "createpp.H"
-
 // The quantity p_rgh is required on cell faces (flux) to project the velocity flux given the
 // updated pressure field, so add it to the list kept internally in OpenFOAM.
-// mesh.setFluxRequired(p_rgh.name());
-mesh.setFluxRequired(pp.name());
+mesh.setFluxRequired(p_rgh.name());
 
 
 // Allows the user to set fvOptions, such as additional source terms.
 #include "createFvOptions.H"
-
-// add RhieChow correction for pressure gradient and time-step
-#include "createRhieChow.H"
