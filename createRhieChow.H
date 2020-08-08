@@ -18,3 +18,7 @@ Info << "RhieChow-ddtCorr: " << ddtCorr << endl;
 // check for RhieChow correction for buoyancy forces
 bool buoyancyCorr (spaece.dict().lookupOrDefault<bool>("buoyancyCorr", true));
 Info << "RhieChow-buoyancyCorr: " << buoyancyCorr << endl;
+
+// Print RhieChow contribution from each terms
+bool printInfo (spaece.dict().lookupOrDefault<bool>("printInfo", false));
+Info << "printInfo: " << printInfo << endl;

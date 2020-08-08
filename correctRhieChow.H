@@ -23,8 +23,12 @@ if(RhieChow)
     // following the sign convection (snGrand - interpolatedGrad)
     phi -= rAUf * gradpDiffFlux();
 
-    surfaceScalarField pressureCont = - (rAUf * gradpDiffFlux())/mesh.magSf();
-    Info << "\tPressure contrinution max: " << gMax(pressureCont) << "\tmin: " << gMin(pressureCont) << endl;
+    if(printInfo)
+    {
+        surfaceScalarField pressureCont = - (rAUf * gradpDiffFlux())/mesh.magSf();
+        Info<< "\tPressure contrinution max: " << gMax(pressureCont)
+            << "\tmin: " << gMin(pressureCont) << endl;
+    }
 
     gradpDiffFlux.clear();
 }
@@ -34,14 +38,19 @@ if(ddtCorr)
 {
     phi += rAUf*fvc::ddtCorr(U, phi);
 
-    surfaceScalarField timeStepCont =  (rAUf * fvc::ddtCorr(U, phi))/mesh.magSf();
-    Info << "\ttimeStep contrinution max: " << gMax(timeStepCont) << "\tmin: " << gMin(timeStepCont) << endl;
+    if(printInfo)
+    {
+        surfaceScalarField timeStepCont =  (rAUf * fvc::ddtCorr(U, phi))/mesh.magSf();
+        Info<< "\ttimeStep contrinution max: " << gMax(timeStepCont)
+            << "\tmin: " << gMin(timeStepCont) << endl;
+    }
 }
 
 // Buoyancy force RhieChow correction
 if(buoyancyCorr)
 {
-    surfaceScalarField buoyancyTerm_RI_Flux
+    // Reconstructed and later interpolated buoyancy flux
+    tmp<surfaceScalarField> buoyancyTerm_RI_Flux
     (
         fvc::dotInterpolate(
             mesh.Sf(),
@@ -49,15 +58,15 @@ if(buoyancyCorr)
         )
     );
 
-    phi += rAUf * (Boussinesq.buoyancyTerm()* mesh.magSf() - buoyancyTerm_RI_Flux);
+    phi += rAUf * (Boussinesq.buoyancyTerm()* mesh.magSf() - buoyancyTerm_RI_Flux());
 
-    surfaceScalarField buoyancyCont =  (rAUf * (Boussinesq.buoyancyTerm()* mesh.magSf() - buoyancyTerm_RI_Flux))/mesh.magSf();
-    Info << "\tbuoyancy  contrinution max: " << gMax(buoyancyCont) << "\tmin: " << gMin(buoyancyCont) << endl;
+    if(printInfo)
+    {
+        surfaceScalarField buoyancyCont =
+        (rAUf * (Boussinesq.buoyancyTerm() - buoyancyTerm_RI_Flux()/mesh.magSf()));
+        Info<< "\tbuoyancy contrinution max: " << gMax(buoyancyCont)
+            << "\tmin: " << gMin(buoyancyCont) << endl;
+    }
 
-    // // surfaceScalarField buoyancyTermDiff (Boussinesq.buoyancyTerm()* mesh.magSf() - buoyancyTerm_RI_Flux);
-    // surfaceScalarField buoyancyTermDiff (Boussinesq.buoyancyTerm()- buoyancyTerm_RI_Flux/ mesh.magSf() );
-    // Info << "\t*** buoyancyTermDiff max: " << gMax(buoyancyTermDiff) << tab << "min: " << gMin(buoyancyTermDiff) << endl;
-
-    // surfaceScalarField faceVelocityDiff(rAUf * buoyancyTermDiff );
-    // Info << "\t*** faceVelocityDiff max: " << gMax(faceVelocityDiff) << tab << "min: " << gMin(faceVelocityDiff) << endl;
+    buoyancyTerm_RI_Flux.clear();
 }
