@@ -23,11 +23,25 @@
 
     fvOptions.constrain(UEqn);
 
-    solve (
-        UEqn 
-      == 
-        - fvc::grad(p_rgh)
-        + fvc::reconstruct (Boussinesq.buoyancyTerm() * mesh.magSf())
-    );
-    
+    if(regOn)
+    {
+        // - Only applicable for A6
+        //   Extrapolated or updated phi and U values are used for regularization
+        solve(
+            UEqn 
+          == 
+            - fvc::grad(p)
+            + fvc::reconstruct (Boussinesq.buoyancyTerm() * mesh.magSf()) 
+            + RegModel->convectionResidual(phi,U));
+    }
+    else
+    {
+        solve (
+            UEqn 
+          == 
+            - fvc::grad(p_rgh)
+            + fvc::reconstruct (Boussinesq.buoyancyTerm() * mesh.magSf())
+        );
+    }
+
     fvOptions.correct(U);

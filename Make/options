@@ -11,7 +11,8 @@ EXE_INC = \
     -I$(WM_PROJECT_USER_DIR)/src/finiteVolume/lnInclude \
     -I$(SOWFA_DIR)/src/ABLForcing/lnInclude \
     -I$(SOWFA_DIR)/src/meshTools/lnInclude \
-    -I$(SOWFA_DIR)/src/boundaryConditions/lnInclude
+    -I$(SOWFA_DIR)/src/boundaryConditions/lnInclude \
+    -I$(WM_PROJECT_USER_DIR)/src/RegularizationModel/lnInclude \
 
 EXE_LIBS = \
     -lturbulenceModels \
@@ -26,4 +27,5 @@ EXE_LIBS = \
     -L$(SOWFA_DIR)/lib/$(WM_OPTIONS) \
     -lSOWFAABLForcing \
     -lSOWFAmeshTools \
-    -lSOWFAboundaryConditions
+    -lSOWFAboundaryConditions \
+    -lRegularization

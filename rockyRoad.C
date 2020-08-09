@@ -50,6 +50,8 @@ Description
 #include "ABL.H"
 #include "defineBlendingFunction.H" // for divergence scheme blending
 
+#include "RegularizationModel.H"
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 int main(int argc, char *argv[])
