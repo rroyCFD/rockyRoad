@@ -6,7 +6,7 @@
     // Update buoyancy term
     Boussinesq.updateBuoyancyTerm();
 
-    fvVectorMatrix UEqn
+    tmp<fvVectorMatrix> tUEqn
     (
         fvm::ddt(U) 
       + fvm::div(phi, U)
@@ -17,7 +17,8 @@
      ==
         fvOptions(U)
     );
-
+    fvVectorMatrix& UEqn = tUEqn.ref();
+    
     UEqn.relax();
 
     fvOptions.constrain(UEqn);
