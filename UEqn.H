@@ -18,31 +18,16 @@
         fvOptions(U)
     );
     fvVectorMatrix& UEqn = tUEqn.ref();
-    
+
     UEqn.relax();
 
     fvOptions.constrain(UEqn);
 
-    if (spaece.momentumPredictor())
-    {
-/*        solve (
-            UEqn 
-          == 
-            fvc::reconstruct
-            (
-                (
-                    - fvc::snGrad(p_rgh)
-                    + Boussinesq.buoyancyTerm()
-                ) * mesh.magSf()
-            ) 
-        );
-*/
-        solve (
-            UEqn 
-          == 
-            - fvc::grad(p_rgh)
-            + fvc::reconstruct (Boussinesq.buoyancyTerm() * mesh.magSf())
-        );
-        
-        fvOptions.correct(U);
-    }
+    solve (
+        UEqn 
+      == 
+        - fvc::grad(p_rgh)
+        + fvc::reconstruct (Boussinesq.buoyancyTerm() * mesh.magSf())
+    );
+    
+    fvOptions.correct(U);
